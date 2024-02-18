@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>tiny-idp Login</title>
+</head>
+
+<body>
+    <div>
+        <h1>tiny-idp Login</h1>
+    </div>
+    <form
+        action="http://localhost:3000/login?client_id={client_id}&redirect_uri={redirect_uri}&scope={scope}&state={state}&nonce={nonce}"
+        method="post">
+        <div>
+            <label for="email">Email</label>
+            <input email="email" type="text" name="email" />
+        </div>
+        <div>
+            <label for="password">Password</label>
+            <input id="password" type="password" name="password" />
+        </div>
+        <div>
+            <input name="login" type="submit" />
+        </div>
+    </form>
+</body>

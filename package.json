@@ -1,0 +1,21 @@
+{
+  "name": "tiny-idp",
+  "version": "1.0.0",
+  "main": "index.js",
+  "scripts": {
+    "start": "npm run build:live",
+    "build": "tsc -p .",
+    "build:live": "nodemon --watch 'src/**/*.ts' --exec \"ts-node\" src/index.ts"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "@types/node": "^20.11.14",
+    "typescript": "^5.3.3"
+  },
+  "directories": {
+    "lib": "lib"
+  },
+  "description": ""
+}
