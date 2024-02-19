@@ -1,8 +1,9 @@
 import { Context } from ".."
-import { ServerResponse, request } from "http"
+import { ServerResponse } from "http"
 import { JwtService } from "../services/jwt_service"
 import { AccessToken } from "../models/access_token"
 import { AuthCode } from "../models/auth_code"
+import { Client } from "../models/client"
 
 // https://openid.net/specs/openid-connect-core-1_0.html#TokenRequest
 // https://openid-foundation-japan.github.io/rfc6749.ja.html#token-req
@@ -11,6 +12,7 @@ type RequestParams = {
   code: string | null;
   redirectUri: string | null;
   clientId: string | null;
+  clientSecret: string | null;
   nonce: string | null;
 }
 
@@ -39,13 +41,15 @@ export const postToken = (db: Context, params: URLSearchParams, res: ServerRespo
   const clientId = params.get('client_id')
   const code = params.get('code')
   const redirectUri = params.get('redirect_uri')
+  const clientSecret = params.get('client_secret')
   const nonce = params.get('nonce')
-  const requestParams: RequestParams = { grantType, code, redirectUri, clientId, nonce }
+  const requestParams: RequestParams = { grantType, code, redirectUri, clientId, clientSecret, nonce }
 
   const authCode = db.authCodes.find((ac) => {
     return ac.code === code && ac.clientId === clientId && ac.expiresAt > new Date()
   })
-  const validated = validate(requestParams, authCode)
+  const client = db.clients.find((c) => c.clientId === clientId)
+  const validated = validate(requestParams, authCode, client)
   if (validated) {
     res.writeHead(400, { 'Content-Type': 'application/json', 'Cache-Control': 'no-store', 'Pragma': 'no-cache' });
     const response: ErrorResponse = { error: validated }
@@ -71,16 +75,11 @@ export const postToken = (db: Context, params: URLSearchParams, res: ServerRespo
 // https://openid-foundation-japan.github.io/rfc6749.ja.html#token-errors
 // 実装しない仕様
 // * Authorization リクエストヘッダーでの認証
-const validate = (requestParams: RequestParams, authCode?: AuthCode): TokenError | null => {
-  // TODO: クライアント認証情報が含まれていない
-  const validClientIds = ['tiny-client']
-
-  // TODO: client_idとredirecturiいらない？
+const validate = (requestParams: RequestParams, authCode?: AuthCode, client?: Client): TokenError | null => {
   if (!requestParams.clientId || !requestParams.code || !requestParams.grantType || !requestParams.redirectUri || !requestParams.nonce) {
     return 'invalid_request'
   }
-  // TODO* これいらない？
-  if (!requestParams.clientId || !validClientIds.includes(requestParams.clientId)) {
+  if (!client || client.clientSecret !== requestParams.clientSecret) {
     return 'invalid_client'
   }
   if (requestParams.grantType !== 'authorization_code') {

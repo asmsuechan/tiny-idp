@@ -8,20 +8,22 @@ import { getAuth } from './controllers/auth_controller'
 import { postToken } from './controllers/token_controller'
 import { getJwks } from './controllers/jwks_controller'
 import { getConfiguration } from './controllers/configuration_controller'
+import { Client } from './models/client'
 
 export type Context = {
   users: User[]
   authCodes: AuthCode[]
   accessTokens: AccessToken[]
+  clients: Client[]
 }
 
 // NOTE: インメモリDBを初期化する
 const users: User[] = [{ id: 1, email: 'tiny-idp@asmsuechan.com', password: 'p@ssw0rd', clientId: 'tiny-client' }]
 const authCodes: AuthCode[] = []
 const accessTokens: AccessToken[] = []
-const session: string[] = []
+const clients: Client[] = [{ clientId: 'tiny-client', clientSecret: 'c1!3n753cr37' }]
 const db = {
-  users, authCodes, accessTokens, session
+  users, authCodes, accessTokens, clients
 }
 
 const server = http.createServer((req: IncomingMessage, res: ServerResponse) => {

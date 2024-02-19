@@ -10,7 +10,7 @@ export const getConfiguration = (res: ServerResponse) => {
     token_endpoint: 'http://localhost:3000/openid-connect/token',
     jwks_uri: 'http://localhost:3000/openid-connect/jwks',
     response_types_supported: ['code'],
-    subject_types_supported: ['public'],
+    subject_types_supported: ['confidential'],
     id_token_signing_alg_values_supported: ['RS256'],
     scopes_supported: ['openid'],
     // https://openid.net/specs/openid-connect-core-1_0.html#ClientAuthentication
