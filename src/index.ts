@@ -9,6 +9,7 @@ import { postToken } from './controllers/token_controller'
 import { getJwks } from './controllers/jwks_controller'
 import { getConfiguration } from './controllers/configuration_controller'
 import { Client } from './models/client'
+import { postIntrospect } from './controllers/introspect_controller'
 
 export type Context = {
   users: User[]
@@ -54,6 +55,15 @@ const server = http.createServer((req: IncomingMessage, res: ServerResponse) => 
     req.on('end', () => {
       const params = new URLSearchParams(body)
       postToken(db, params, res)
+    })
+  } else if (req.url?.split('?')[0] === '/openid-connect/introspect' && req.method === 'POST') {
+    let body = ''
+    req.on('data', (chunk) => {
+      body += chunk
+    })
+    req.on('end', () => {
+      const params = new URLSearchParams(body)
+      postIntrospect(db, params, res)
     })
   } else if (req.url?.split('?')[0] === '/openid-connect/jwks' && req.method === 'GET') {
     getJwks(res)
