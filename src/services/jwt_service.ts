@@ -6,7 +6,7 @@ type JwtHeader = {
   alg: string;
   typ: string;
   kid?: string;
-}
+};
 
 type JwtPayload = {
   iss: string;
@@ -15,7 +15,7 @@ type JwtPayload = {
   exp: number;
   iat: number;
   nonce: string;
-}
+};
 
 export class JwtService {
   get ONE_MIN(): number {
@@ -27,12 +27,12 @@ export class JwtService {
     const encodedPayload = this.base64urlEncode(JSON.stringify(this.buildPayload(iss, aud, nonce, expDuration)));
     const signTarget = `${encodedHeader}.${encodedPayload}`;
     const signature = this.sign(signTarget);
-    return `${signTarget}.${this.base64urlEncode(signature)}`
+    return `${signTarget}.${this.base64urlEncode(signature)}`;
   }
 
   public sign(target: string) {
     const privatePath = path.resolve('./keys/tiny_idp_private.pem');
-    const privateKey = fs.readFileSync(privatePath, "utf8");
+    const privateKey = fs.readFileSync(privatePath, 'utf8');
 
     const sign = crypto.createSign('RSA-SHA256');
     sign.update(target);
@@ -43,7 +43,7 @@ export class JwtService {
   private buildHeader(): JwtHeader {
     return {
       alg: 'RS256',
-      typ: 'JWT',
+      typ: 'JWT'
     };
   }
 
@@ -55,9 +55,6 @@ export class JwtService {
   }
 
   private base64urlEncode(input: string) {
-    return Buffer.from(input).toString('base64')
-      .replace(/\+/g, '-')
-      .replace(/\//g, '_')
-      .replace(/=/g, '');
+    return Buffer.from(input).toString('base64').replace(/\+/g, '-').replace(/\//g, '_').replace(/=/g, '');
   }
 }

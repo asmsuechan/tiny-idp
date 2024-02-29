@@ -1,6 +1,6 @@
 // https://openid.net/specs/openid-connect-discovery-1_0.html
 
-import { ServerResponse } from "http";
+import { ServerResponse } from 'http';
 
 export const getConfiguration = (res: ServerResponse) => {
   // https://openid.net/specs/openid-connect-discovery-1_0.html#ProviderMetadata
@@ -15,8 +15,8 @@ export const getConfiguration = (res: ServerResponse) => {
     scopes_supported: ['openid'],
     // https://openid.net/specs/openid-connect-core-1_0.html#ClientAuthentication
     token_endpoint_auth_methods_supported: ['client_secret_post'],
-    claims_supported: ['sub', 'iss'],
-  }
+    claims_supported: ['sub', 'iss']
+  };
   res.writeHead(200, { 'Content-Type': 'application/json' });
   res.end(JSON.stringify(configuration));
-}
+};

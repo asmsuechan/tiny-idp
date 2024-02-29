@@ -5,9 +5,9 @@ export class AccessToken {
   userId: number;
 
   constructor(token: string, expiresIn: number, userId: number) {
-    this.token = token
-    this.expiresIn = expiresIn
-    this.userId = userId
+    this.token = token;
+    this.expiresIn = expiresIn;
+    this.userId = userId;
   }
 
   static build(userId: number) {
@@ -18,9 +18,12 @@ export class AccessToken {
 
   save(db: AccessToken[]) {
     if (db.some((at) => at.userId === this.userId)) {
-      db.splice(db.findIndex((at) => at.userId === this.userId), 1)
+      db.splice(
+        db.findIndex((at) => at.userId === this.userId),
+        1
+      );
     } else {
-      db.push(this)
+      db.push(this);
     }
   }
 
