@@ -1,6 +1,6 @@
 // https://datatracker.ietf.org/doc/html/rfc7662
 import { ServerResponse } from 'http';
-import { Context } from '../index';
+import { Context } from '../models/context';
 
 export const postIntrospect = (db: Context, params: URLSearchParams, res: ServerResponse) => {
   const accessToken = params.get('token');

@@ -2,7 +2,7 @@ import { ServerResponse } from 'http';
 import { ParsedUrlQuery } from 'querystring';
 import { AuthCode } from '../models/auth_code';
 import { User } from '../models/user';
-import { Context } from '../index';
+import { Context } from '../models/context';
 
 const ISSUER = 'http://localhost:3000';
 

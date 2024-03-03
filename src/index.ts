@@ -11,13 +11,6 @@ import { getConfiguration } from './controllers/configuration_controller';
 import { Client } from './models/client';
 import { postIntrospect } from './controllers/introspect_controller';
 
-export type Context = {
-  users: User[];
-  authCodes: AuthCode[];
-  accessTokens: AccessToken[];
-  clients: Client[];
-};
-
 // NOTE: インメモリDBを初期化する
 const users: User[] = [{ id: 1, email: 'tiny-idp@asmsuechan.com', password: 'p@ssw0rd', clientId: 'tiny-client' }];
 const authCodes: AuthCode[] = [];

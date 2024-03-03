@@ -1,5 +1,5 @@
 import { ParsedUrlQuery } from 'querystring';
-import { Context } from '..';
+import { Context } from '../models/context';
 import { ServerResponse } from 'http';
 import fs from 'fs';
 
@@ -127,14 +127,7 @@ const validate = (query: QueryParams): ValidateError | null => {
   // NOTE: パラメーターがnullでない、かつ?client_id=a&client_id=bのように複数指定されていないことの確認
   // > リクエストに必須パラメーターが含まれていない, サポート外のパラメーターが付与されている, 同一のパラメーターが複数含まれる場合, その他不正な形式であった場合もこれに含まれる.
   // https://openid-foundation-japan.github.io/rfc6749.ja.html#code-authz-resp
-  if (
-    !clientId ||
-    !responseType ||
-    !scope ||
-    Array.isArray(clientId) ||
-    Array.isArray(responseType) ||
-    Array.isArray(scope)
-  ) {
+  if (!responseType || !scope || Array.isArray(responseType) || Array.isArray(scope)) {
     return { authCodeError: 'invalid_request', target: 'redirectUri' };
   }
 

@@ -1,4 +1,4 @@
-import { Context } from '..';
+import { Context } from '../models/context';
 import { ServerResponse } from 'http';
 import { JwtService } from '../services/jwt_service';
 import { AccessToken } from '../models/access_token';
