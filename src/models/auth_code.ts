@@ -1,4 +1,3 @@
-const ONE_DAY = 60 * 60 * 24;
 export class AuthCode {
   code: string;
   userId: number;
@@ -23,6 +22,7 @@ export class AuthCode {
     return authCode;
   }
 
+  // 既存レコードがあれば上書きし、なければ新規に保存する
   save(db: AuthCode[]) {
     if (db.some((ac) => ac.code === this.code)) {
       db.splice(
