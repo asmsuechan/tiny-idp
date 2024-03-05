@@ -25,10 +25,8 @@ export class AuthCode {
   // 既存レコードがあれば上書きし、なければ新規に保存する
   save(db: AuthCode[]) {
     if (db.some((ac) => ac.code === this.code)) {
-      db = db.splice(
-        db.findIndex((ac) => ac.code === this.code),
-        1
-      );
+      const index = db.findIndex((ac) => ac.code === this.code);
+      db[index] = this;
     } else {
       db.push(this);
     }
