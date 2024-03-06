@@ -4,13 +4,21 @@ import { User } from './models/user';
 import { login } from './controllers/login_controller';
 import { getAuth } from './controllers/auth_controller';
 import { AuthCode } from './models/auth_code';
+import { postToken } from './controllers/token_controller';
+import { AccessToken } from './models/access_token';
+import { Client } from './models/client';
+import { postIntrospect } from './controllers/introspect_controller';
 
 // NOTE: インメモリDBを初期化する
 const users: User[] = [{ id: 1, email: 'tiny-idp@asmsuechan.com', password: 'p@ssw0rd', clientId: 'tiny-client' }];
 const authCodes: AuthCode[] = [];
+const accessTokens: AccessToken[] = [];
+const clients: Client[] = [{ clientId: 'tiny-client', clientSecret: 'c1!3n753cr37' }];
 const db = {
   users,
-  authCodes
+  authCodes,
+  accessTokens,
+  clients
 };
 
 const server = http.createServer((req: IncomingMessage, res: ServerResponse) => {
@@ -32,6 +40,24 @@ const server = http.createServer((req: IncomingMessage, res: ServerResponse) => 
   } else if (req.url?.split('?')[0] === '/openid-connect/auth' && (req.method === 'GET' || req.method === 'POST')) {
     const query = url.parse(req.url, true).query;
     getAuth(db, query, res);
+  } else if (req.url?.split('?')[0] === '/openid-connect/token' && req.method === 'POST') {
+    let body = '';
+    req.on('data', (chunk) => {
+      body += chunk;
+    });
+    req.on('end', () => {
+      const params = new URLSearchParams(body);
+      postToken(db, params, res);
+    });
+  } else if (req.url?.split('?')[0] === '/openid-connect/introspect' && req.method === 'POST') {
+    let body = '';
+    req.on('data', (chunk) => {
+      body += chunk;
+    });
+    req.on('end', () => {
+      const params = new URLSearchParams(body);
+      postIntrospect(db, params, res);
+    });
   } else {
     res.writeHead(404, { 'Content-Type': 'text/plain' });
     res.end('Page not found');
