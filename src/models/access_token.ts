@@ -12,8 +12,8 @@ export class AccessToken {
 
   static build(userId: number) {
     const token = Math.random().toString(36).slice(-8);
-    const expiresAt = ONE_DAY;
-    return new AccessToken(token, new Date().getTime() + expiresAt, userId);
+    const expiresIn = ONE_DAY * 1000;
+    return new AccessToken(token, new Date().getTime() + expiresIn, userId);
   }
 
   save(db: AccessToken[]) {
