@@ -3,6 +3,7 @@ import { AuthCode } from '../models/auth_code';
 import { Client } from '../models/client';
 import { Context } from '../models/context';
 import { ServerResponse } from 'http';
+import { JwtService } from '../services/jwt_service';
 
 // https://openid.net/specs/openid-connect-core-1_0.html#TokenResponse
 // https://openid-foundation-japan.github.io/rfc6749.ja.html#anchor25
@@ -76,8 +77,10 @@ export const postToken = (db: Context, params: URLSearchParams, res: ServerRespo
     'Cache-Control': 'no-store',
     Pragma: 'no-cache'
   });
+  const jwtService = new JwtService();
+  const jwt = jwtService.generate('http://localhost:3000', 'tiny-client');
   const data: ResponseData = {
-    id_token: 'dummy-id-token',
+    id_token: jwt,
     access_token: accessToken.token,
     token_type: 'Bearer',
     expires_in: 86400
