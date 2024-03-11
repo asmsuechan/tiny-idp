@@ -22,7 +22,7 @@ export class JwtService {
   }
 
   public generate(iss: string, aud: string, expDuration: number = this.ONE_DAY): string {
-    const encodedHeader = this.base64urlEncode(JSON.stringify(this.buildHeader('tin-idp-sig')));
+    const encodedHeader = this.base64urlEncode(JSON.stringify(this.buildHeader('2024-03-10')));
     const encodedPayload = this.base64urlEncode(JSON.stringify(this.buildPayload(iss, aud, expDuration)));
     const signTarget = `${encodedHeader}.${encodedPayload}`;
     const signature = this.sign(signTarget);
