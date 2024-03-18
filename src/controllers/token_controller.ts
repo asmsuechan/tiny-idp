@@ -78,7 +78,7 @@ export const postToken = (db: Context, params: URLSearchParams, res: ServerRespo
     Pragma: 'no-cache'
   });
   const jwtService = new JwtService();
-  const jwt = jwtService.generate('http://localhost:3000', 'tiny-client');
+  const jwt = jwtService.generate('http://localhost:3000', 'tiny-client', authCode!.nonce!);
   const data: ResponseData = {
     id_token: jwt,
     access_token: accessToken.token,

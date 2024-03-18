@@ -8,6 +8,7 @@ type JwtPayload = {
   aud: string;
   exp: number;
   iat: number;
+  nonce: string;
 };
 
 type JwtHeader = {
@@ -21,9 +22,9 @@ export class JwtService {
     return 60 * 60 * 24;
   }
 
-  public generate(iss: string, aud: string, expDuration: number = this.ONE_DAY): string {
+  public generate(iss: string, aud: string, nonce: string, expDuration: number = this.ONE_DAY): string {
     const encodedHeader = this.base64urlEncode(JSON.stringify(this.buildHeader('2024-03-10')));
-    const encodedPayload = this.base64urlEncode(JSON.stringify(this.buildPayload(iss, aud, expDuration)));
+    const encodedPayload = this.base64urlEncode(JSON.stringify(this.buildPayload(iss, aud, nonce, expDuration)));
     const signTarget = `${encodedHeader}.${encodedPayload}`;
     const signature = this.sign(signTarget);
     return `${signTarget}.${this.base64urlEncode(signature)}`;
@@ -47,11 +48,11 @@ export class JwtService {
     };
   }
 
-  private buildPayload(iss: string, aud: string, expDuration: number = this.ONE_DAY): JwtPayload {
+  private buildPayload(iss: string, aud: string, nonce: string, expDuration: number = this.ONE_DAY): JwtPayload {
     const sub = Math.random().toString(16).slice(2);
     const iat = Math.floor(Date.now() / 1000);
     const exp = iat + expDuration;
-    return { iss, sub, aud, exp, iat };
+    return { iss, sub, aud, exp, iat, nonce };
   }
 
   private base64urlEncode(input: string) {
