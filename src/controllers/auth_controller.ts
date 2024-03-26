@@ -51,9 +51,9 @@ type ErrorResponse = {
 export const getAuth = (db: Context, query: ParsedUrlQuery, res: ServerResponse) => {
   try {
     const scope = query.scope;
-    const responseType = query.response_type;
     const clientId = query.client_id;
     const redirectUri = query.redirect_uri;
+    const responseType = query.response_type;
     const state = query.state;
     const nonce = query.nonce;
     const queryParams: QueryParams = { scope, responseType, clientId, redirectUri, state, nonce };
@@ -79,23 +79,20 @@ export const getAuth = (db: Context, query: ParsedUrlQuery, res: ServerResponse)
     template = template.replace(/{client_id}/g, String(clientId));
     template = template.replace(/{redirect_uri}/g, String(redirectUri));
     template = template.replace(/{scope}/g, String(scope));
-    template = template.replace(/{state}/g, String(state));
-    template = template.replace(/{nonce}/g, String(nonce));
+    template = template.replace(/{state}/g, String(query.state));
     res.end(template);
   } catch (e) {
     // NOTE: エラー時はserver_errorを返すという仕様も決まっている
     // https://openid-foundation-japan.github.io/rfc6749.ja.html#code-authz-resp
     console.error(e);
     res.writeHead(500, { 'Content-Type': 'application/x-www-form-urlencoded' });
-    const responseData: ErrorResponse = { error: 'server_error' };
+    const responseData = { error: 'server_error' };
     const response = new URLSearchParams(responseData).toString();
     res.end(response);
   }
 };
 
 // NOTE: エラーの返却先はリソースオーナーとredirect_uriの2種類ある
-// > リクエストが, リダイレクトURIの欠落 / 不正 / ミスマッチによって失敗した場合, もしくはクライアント識別子が不正な場合は, 認可サーバーはリソースオーナーにエラーを通知すべきである (SHOULD). 不正なリダイレクトURIに対してユーザーエージェントを自動的にリダイレクトさせてはならない (MUST NOT).
-// > リソースオーナーがアクセス要求を拒否した場合, もしくはリダイレクトURIの欠落や不正以外でリクエストが失敗した場合は, 認可サーバーは application/x-www-form-urlencoded (Appendix B) フォーマットを用いてリダイレクトURIのクエリーコンポーネントに次のようなパラメーターを付与してクライアントに返却する.
 // https://openid-foundation-japan.github.io/rfc6749.ja.html#code-authz-resp
 // https://openid.net/specs/openid-connect-core-1_0.html#AuthCodeError
 const validate = (query: QueryParams): ValidateError | null => {
@@ -119,7 +116,6 @@ const validate = (query: QueryParams): ValidateError | null => {
   ) {
     return { authCodeError: 'invalid_request', target: 'resourceOwner' };
   }
-
   const responseType = query.responseType;
   // NOTE: scopeの区切り文字はスペース
   const scope = query.scope;

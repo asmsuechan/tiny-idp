@@ -1,15 +1,15 @@
 import http, { IncomingMessage, ServerResponse } from 'http';
 import url from 'url';
 import { User } from './models/user';
-import { AuthCode } from './models/auth_code';
-import { AccessToken } from './models/access_token';
 import { login } from './controllers/login_controller';
 import { getAuth } from './controllers/auth_controller';
+import { AuthCode } from './models/auth_code';
 import { postToken } from './controllers/token_controller';
-import { getJwks } from './controllers/jwks_controller';
-import { getConfiguration } from './controllers/configuration_controller';
+import { AccessToken } from './models/access_token';
 import { Client } from './models/client';
 import { postIntrospect } from './controllers/introspect_controller';
+import { getJwks } from './controllers/jwks_controller';
+import { getConfiguration } from './controllers/configuration_controller';
 
 // NOTE: インメモリDBを初期化する
 const users: User[] = [{ id: 1, email: 'tiny-idp@asmsuechan.com', password: 'p@ssw0rd', clientId: 'tiny-client' }];

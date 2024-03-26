@@ -2,12 +2,6 @@ import crypto from 'crypto';
 import path from 'path';
 import fs from 'fs';
 
-type JwtHeader = {
-  alg: string;
-  typ: string;
-  kid?: string;
-};
-
 type JwtPayload = {
   iss: string;
   sub: string;
@@ -17,20 +11,26 @@ type JwtPayload = {
   nonce: string;
 };
 
+type JwtHeader = {
+  alg: string;
+  typ: string;
+  kid: string;
+};
+
 export class JwtService {
-  get ONE_MIN(): number {
-    return 60;
+  get ONE_DAY(): number {
+    return 60 * 60 * 24;
   }
 
-  public generate(iss: string, aud: string, nonce: string, expDuration: number = this.ONE_MIN): string {
-    const encodedHeader = this.base64urlEncode(JSON.stringify(this.buildHeader()));
+  public generate(iss: string, aud: string, nonce: string, expDuration: number = this.ONE_DAY): string {
+    const encodedHeader = this.base64urlEncode(JSON.stringify(this.buildHeader('2024-03-10')));
     const encodedPayload = this.base64urlEncode(JSON.stringify(this.buildPayload(iss, aud, nonce, expDuration)));
     const signTarget = `${encodedHeader}.${encodedPayload}`;
     const signature = this.sign(signTarget);
     return `${signTarget}.${this.base64urlEncode(signature)}`;
   }
 
-  public sign(target: string) {
+  private sign(target: string) {
     const privatePath = path.resolve('./keys/tiny_idp_private.pem');
     const privateKey = fs.readFileSync(privatePath, 'utf8');
 
@@ -40,14 +40,15 @@ export class JwtService {
     return signature;
   }
 
-  private buildHeader(): JwtHeader {
+  private buildHeader(kid: string): JwtHeader {
     return {
       alg: 'RS256',
-      typ: 'JWT'
+      typ: 'JWT',
+      kid: kid
     };
   }
 
-  private buildPayload(iss: string, aud: string, nonce: string, expDuration: number = this.ONE_MIN): JwtPayload {
+  private buildPayload(iss: string, aud: string, nonce: string, expDuration: number = this.ONE_DAY): JwtPayload {
     const sub = Math.random().toString(16).slice(2);
     const iat = Math.floor(Date.now() / 1000);
     const exp = iat + expDuration;
