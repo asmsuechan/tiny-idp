@@ -80,6 +80,7 @@ export const getAuth = (db: Context, query: ParsedUrlQuery, res: ServerResponse)
     template = template.replace(/{redirect_uri}/g, String(redirectUri));
     template = template.replace(/{scope}/g, String(scope));
     template = template.replace(/{state}/g, String(query.state));
+    template = template.replace(/{nonce}/g, String(query.nonce));
     res.end(template);
   } catch (e) {
     // NOTE: エラー時はserver_errorを返すという仕様も決まっている
