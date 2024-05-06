@@ -1,8 +1,8 @@
-import { AccessToken } from '../models/access_token';
-import { AuthCode } from '../models/auth_code';
-import { Client } from '../models/client';
-import { Context } from '../models/context';
-import { ServerResponse } from 'http';
+import { AccessToken, EXPIRES_IN } from "../models/access_token";
+import { Context } from "../models/context";
+import { AuthCode } from "../models/auth_code";
+import { Client } from "../models/client";
+import { ServerResponse } from "http";
 
 // https://openid.net/specs/openid-connect-core-1_0.html#TokenResponse
 // https://openid-foundation-japan.github.io/rfc6749.ja.html#anchor25
@@ -26,12 +26,12 @@ type RequestParams = {
 // https://openid.net/specs/openid-connect-core-1_0.html#TokenErrorResponse
 // https://openid-foundation-japan.github.io/rfc6749.ja.html#token-errors
 type TokenError =
-  | 'invalid_request'
-  | 'invalid_client'
-  | 'invalid_grant'
-  | 'unauthorized_client'
-  | 'unsupported_grant_type'
-  | 'invalid_scope';
+  | "invalid_request"
+  | "invalid_client"
+  | "invalid_grant"
+  | "unauthorized_client"
+  | "unsupported_grant_type"
+  | "invalid_scope";
 type ErrorResponse = {
   error: TokenError;
   error_description?: string;
@@ -42,23 +42,41 @@ type ErrorResponse = {
 // > 認可サーバーは未知のリクエストパラメーターは無視しなければならない (MUST).
 // > リクエストおよびレスポンスパラメーターは重複を許さない (MUST NOT).
 // > https://openid-foundation-japan.github.io/rfc6749.ja.html#anchor23
-export const postToken = (db: Context, params: URLSearchParams, res: ServerResponse) => {
-  const grantType = params.get('grant_type');
-  const clientId = params.get('client_id');
-  const code = params.get('code');
-  const redirectUri = params.get('redirect_uri');
-  const clientSecret = params.get('client_secret');
-  const requestParams: RequestParams = { grantType, code, redirectUri, clientId, clientSecret };
+export const postToken = (
+  db: Context,
+  params: URLSearchParams,
+  res: ServerResponse
+) => {
+  const clientId = params.get("client_id");
+  const code = params.get("code");
+
+  const grantType = params.get("grant_type");
+  const redirectUri = params.get("redirect_uri");
+  const clientSecret = params.get("client_secret");
+  const requestParams: RequestParams = {
+    grantType,
+    code,
+    redirectUri,
+    clientId,
+    clientSecret,
+  };
+
   const client = db.clients.find((c) => c.clientId === clientId);
+
   // NOTE: 未使用の認可コードを見つけてくる
   const authCode = db.authCodes.find((ac) => {
-    return ac.code === code && ac.clientId === clientId && ac.expiresAt > new Date();
+    return (
+      ac.code === code && ac.clientId === clientId && ac.expiresAt > new Date()
+    );
   });
-
-  const validated = validate(requestParams, authCode, client);
-  if (validated) {
-    res.writeHead(400, { 'Content-Type': 'application/json', 'Cache-Control': 'no-store', Pragma: 'no-cache' });
-    const response: ErrorResponse = { error: validated };
+  const validateError = validate(requestParams, authCode, client);
+  if (validateError) {
+    res.writeHead(400, {
+      "Content-Type": "application/json",
+      "Cache-Control": "no-store",
+      Pragma: "no-cache",
+    });
+    const response: ErrorResponse = { error: validateError };
     res.end(JSON.stringify(response));
     return;
   }
@@ -72,36 +90,48 @@ export const postToken = (db: Context, params: URLSearchParams, res: ServerRespo
   accessToken.save(db.accessTokens);
 
   res.writeHead(200, {
-    'Content-Type': 'application/json',
-    'Cache-Control': 'no-store',
-    Pragma: 'no-cache'
+    "Content-Type": "application/json",
+    "Cache-Control": "no-store",
+    Pragma: "no-cache",
   });
   const data: ResponseData = {
-    id_token: 'dummy-id-token',
+    id_token: "dummy-id-token",
     access_token: accessToken.token,
-    token_type: 'Bearer',
-    expires_in: 86400
+    token_type: "Bearer",
+    expires_in: EXPIRES_IN,
   };
+
   res.end(JSON.stringify(data));
 };
 
-// https://openid.net/specs/openid-connect-core-1_0.html#TokenRequestValidation
-// https://openid-foundation-japan.github.io/rfc6749.ja.html#token-errors
 // 実装しない仕様
 // * Authorization リクエストヘッダーでの認証
-const validate = (requestParams: RequestParams, authCode?: AuthCode, client?: Client): TokenError | null => {
-  if (!requestParams.clientId || !requestParams.code || !requestParams.grantType || !requestParams.redirectUri) {
-    return 'invalid_request';
+const validate = (
+  requestParams: RequestParams,
+  authCode?: AuthCode,
+  client?: Client
+): TokenError | null => {
+  if (
+    !requestParams.clientId ||
+    !requestParams.code ||
+    !requestParams.grantType ||
+    !requestParams.redirectUri
+  ) {
+    return "invalid_request";
   }
-  if (requestParams.grantType !== 'authorization_code') {
-    return 'unsupported_grant_type';
+  if (requestParams.grantType !== "authorization_code") {
+    return "unsupported_grant_type";
   }
-  // https://openid-foundation-japan.github.io/rfc6749.ja.html#code-authz-resp
-  if (!authCode || authCode.usedAt || authCode.redirectUri !== requestParams.redirectUri) {
-    return 'invalid_grant';
+  if (
+    !authCode ||
+    authCode.usedAt ||
+    authCode.redirectUri !== requestParams.redirectUri
+  ) {
+    return "invalid_grant";
   }
+
   if (!client || client.clientSecret !== requestParams.clientSecret) {
-    return 'invalid_client';
+    return "invalid_client";
   }
 
   return null;
