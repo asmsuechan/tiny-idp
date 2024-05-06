@@ -1,4 +1,3 @@
-import { ParsedUrlQuery } from 'querystring';
 import { Context } from '../models/context';
 import { ServerResponse } from 'http';
 import fs from 'fs';
@@ -6,12 +5,12 @@ import fs from 'fs';
 // https://openid.net/specs/openid-connect-core-1_0.html#AuthRequest
 // https://openid-foundation-japan.github.io/rfc6749.ja.html#code-authz-req
 type QueryParams = {
-  scope: string | string[] | undefined;
-  responseType: string | string[] | undefined;
-  clientId: string | string[] | undefined;
-  redirectUri: string | string[] | undefined;
-  state: string | string[] | undefined;
-  nonce: string | string[] | undefined;
+  scope: string | null;
+  responseType: string | null;
+  clientId: string | null;
+  redirectUri: string | null;
+  state: string | null;
+  nonce: string | null;
 };
 
 // https://www.rfc-editor.org/rfc/rfc6749.html#section-4.1.2.1
@@ -48,14 +47,14 @@ type ErrorResponse = {
   error_uri?: string;
 };
 
-export const getAuth = (db: Context, query: ParsedUrlQuery, res: ServerResponse) => {
+export const getAuth = (db: Context, query: URLSearchParams, res: ServerResponse) => {
   try {
-    const scope = query.scope;
-    const clientId = query.client_id;
-    const redirectUri = query.redirect_uri;
-    const responseType = query.response_type;
-    const state = query.state;
-    const nonce = query.nonce;
+    const scope = query.get('scope');
+    const clientId = query.get('client_id');
+    const redirectUri = query.get('redirect_uri');
+    const responseType = query.get('response_type');
+    const state = query.get('state');
+    const nonce = query.get('nonce');
     const queryParams: QueryParams = { scope, responseType, clientId, redirectUri, state, nonce };
     const validated = validate(queryParams);
     if (validated) {
@@ -64,7 +63,7 @@ export const getAuth = (db: Context, query: ParsedUrlQuery, res: ServerResponse)
         const response = new URLSearchParams(responseData).toString();
         res.writeHead(302, {
           'Content-Type': 'application/x-www-form-urlencoded',
-          Location: `${redirectUri}?${response}`,
+          Location: `${redirectUri}?${response}`
         });
         res.end(`${redirectUri}?${response}`);
       } else {
@@ -82,7 +81,7 @@ export const getAuth = (db: Context, query: ParsedUrlQuery, res: ServerResponse)
     template = template.replace(/{client_id}/g, String(clientId));
     template = template.replace(/{redirect_uri}/g, String(redirectUri));
     template = template.replace(/{scope}/g, String(scope));
-    template = template.replace(/{state}/g, String(query.state));
+    template = template.replace(/{state}/g, String(state));
     res.end(template);
   } catch (e) {
     // NOTE: エラー時はserver_errorを返すという仕様も決まっている

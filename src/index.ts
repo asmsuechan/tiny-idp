@@ -1,5 +1,4 @@
 import http, { IncomingMessage, ServerResponse } from 'http';
-import url from 'url';
 import { User } from './models/user';
 import { login } from './controllers/login_controller';
 import { getAuth } from './controllers/auth_controller';
@@ -26,23 +25,24 @@ const db = {
 const server = http.createServer((req: IncomingMessage, res: ServerResponse) => {
   console.log(`[${new Date()}] ${req.url}`);
 
-  if (req.url === '/') {
+  const url = new URL(req.url || '');
+
+  if (url.pathname === '/') {
     res.writeHead(200, { 'Content-Type': 'text/plain' });
     res.end('Hello tiny openid provider!');
-  } else if (req.url?.split('?')[0] === '/login' && req.method === 'POST') {
-    const query = url.parse(req.url, true).query;
+  } else if (url.pathname === '/login' && req.method === 'POST') {
     let body = '';
     req.on('data', (chunk) => {
       body += chunk;
     });
     req.on('end', () => {
       const params = new URLSearchParams(body);
-      login(db, query, params, res);
+      login(db, url.searchParams, params, res);
     });
-  } else if (req.url?.split('?')[0] === '/openid-connect/auth' && (req.method === 'GET' || req.method === 'POST')) {
-    const query = url.parse(req.url, true).query;
-    getAuth(db, query, res);
-  } else if (req.url?.split('?')[0] === '/openid-connect/token' && req.method === 'POST') {
+  } else if (url.pathname === '/openid-connect/auth' && (req.method === 'GET' || req.method === 'POST')) {
+    const query = url.searchParams;
+    getAuth(db, url.searchParams, res);
+  } else if (url.pathname === '/openid-connect/token' && req.method === 'POST') {
     let body = '';
     req.on('data', (chunk) => {
       body += chunk;
@@ -51,7 +51,7 @@ const server = http.createServer((req: IncomingMessage, res: ServerResponse) => 
       const params = new URLSearchParams(body);
       postToken(db, params, res);
     });
-  } else if (req.url?.split('?')[0] === '/openid-connect/introspect' && req.method === 'POST') {
+  } else if (url.pathname === '/openid-connect/introspect' && req.method === 'POST') {
     let body = '';
     req.on('data', (chunk) => {
       body += chunk;
@@ -60,9 +60,9 @@ const server = http.createServer((req: IncomingMessage, res: ServerResponse) => 
       const params = new URLSearchParams(body);
       postIntrospect(db, params, res);
     });
-  } else if (req.url?.split('?')[0] === '/openid-connect/jwks' && req.method === 'GET') {
+  } else if (url.pathname === '/openid-connect/jwks' && req.method === 'GET') {
     getJwks(res);
-  } else if (req.url?.split('?')[0] === '/openid-connect/.well-known/openid-configuration' && req.method === 'GET') {
+  } else if (url.pathname === '/openid-connect/.well-known/openid-configuration' && req.method === 'GET') {
     getConfiguration(res);
   } else {
     res.writeHead(404, { 'Content-Type': 'text/plain' });
