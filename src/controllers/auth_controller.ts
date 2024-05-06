@@ -65,7 +65,7 @@ export const getAuth = (db: Context, query: URLSearchParams, res: ServerResponse
           'Content-Type': 'application/x-www-form-urlencoded',
           Location: `${redirectUri}?${response}`
         });
-        res.end(`${redirectUri}?${response}`);
+        res.end();
       } else {
         // リソースオーナーは今操作している人である
         // ここのレスポンスは仕様がないためJSONを返す
