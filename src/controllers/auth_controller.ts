@@ -62,7 +62,10 @@ export const getAuth = (db: Context, query: ParsedUrlQuery, res: ServerResponse)
       const responseData: ErrorResponse = { error: validated.authCodeError };
       if (validated.target === 'redirectUri') {
         const response = new URLSearchParams(responseData).toString();
-        res.writeHead(302, { 'Content-Type': 'application/x-www-form-urlencoded' });
+        res.writeHead(302, {
+          'Content-Type': 'application/x-www-form-urlencoded',
+          Location: `${redirectUri}?${response}`,
+        });
         res.end(`${redirectUri}?${response}`);
       } else {
         // リソースオーナーは今操作している人である
