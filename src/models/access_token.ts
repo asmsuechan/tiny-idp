@@ -1,4 +1,4 @@
-const ONE_DAY = 60 * 60 * 24; // 85400
+export const EXPIRES_IN = 60 * 60 * 24; // 86400
 export class AccessToken {
   token: string;
   expiresAt: number;
@@ -12,7 +12,7 @@ export class AccessToken {
 
   static build(userId: number) {
     const token = Math.random().toString(36).slice(-8);
-    const expiresIn = ONE_DAY * 1000;
+    const expiresIn = EXPIRES_IN * 1000;
     return new AccessToken(token, new Date().getTime() + expiresIn, userId);
   }
 

@@ -1,4 +1,4 @@
-import { AccessToken } from '../models/access_token';
+import { AccessToken, EXPIRES_IN } from '../models/access_token';
 import { AuthCode } from '../models/auth_code';
 import { Client } from '../models/client';
 import { Context } from '../models/context';
@@ -83,7 +83,7 @@ export const postToken = (db: Context, params: URLSearchParams, res: ServerRespo
     id_token: jwt,
     access_token: accessToken.token,
     token_type: 'Bearer',
-    expires_in: 86400
+    expires_in: EXPIRES_IN
   };
   res.end(JSON.stringify(data));
 };
