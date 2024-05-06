@@ -40,7 +40,6 @@ const server = http.createServer((req: IncomingMessage, res: ServerResponse) => 
       login(db, url.searchParams, params, res);
     });
   } else if (url.pathname === '/openid-connect/auth' && (req.method === 'GET' || req.method === 'POST')) {
-    const query = url.searchParams;
     getAuth(db, url.searchParams, res);
   } else if (url.pathname === '/openid-connect/token' && req.method === 'POST') {
     let body = '';
