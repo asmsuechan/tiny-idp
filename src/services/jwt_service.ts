@@ -38,7 +38,7 @@ export class JwtService {
     return `${signTarget}.${this.base64urlEncode(signature)}`;
   }
 
-  public sign(target: string) {
+  private sign(target: string) {
     const privatePath = path.resolve("./keys/tiny_idp_private.pem");
     const privateKey = fs.readFileSync(privatePath, "utf8");
 

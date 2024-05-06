@@ -57,15 +57,11 @@ const validate = (query: QueryParams): ValidateError | null => {
 
   if (
     !redirectUri ||
-    Array.isArray(redirectUri) ||
     !validRedirectUris.includes(redirectUri) ||
     !clientId ||
-    Array.isArray(clientId) ||
     !validClientIds.includes(clientId) ||
     !state ||
-    Array.isArray(state) ||
-    !nonce ||
-    Array.isArray(nonce)
+    !nonce
   ) {
     return { authCodeError: "invalid_request", target: "resourceOwner" };
   }
@@ -75,14 +71,9 @@ const validate = (query: QueryParams): ValidateError | null => {
   // NOTE: scopeの区切り文字はスペース
   const scope = query.scope;
 
-  // NOTE: パラメーターがnullでない、かつ?client_id=a&client_id=bのように複数指定されていないことの確認
+  // NOTE: パラメーターがnullでないことの確認
   // > リクエストに必須パラメーターが含まれていない, サポート外のパラメーターが付与されている, 同一のパラメーターが複数含まれる場合, その他不正な形式であった場合もこれに含まれる.
-  if (
-    !responseType ||
-    !scope ||
-    Array.isArray(responseType) ||
-    Array.isArray(scope)
-  ) {
+  if (!responseType || !scope) {
     return { authCodeError: "invalid_request", target: "redirectUri" };
   }
 
