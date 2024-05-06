@@ -1,6 +1,6 @@
-import crypto from 'crypto';
-import path from 'path';
-import fs from 'fs';
+import crypto from "crypto";
+import path from "path";
+import fs from "fs";
 
 type JwtPayload = {
   iss: string;
@@ -22,33 +22,45 @@ export class JwtService {
     return 60 * 60 * 24;
   }
 
-  public generate(iss: string, aud: string, nonce: string, expDuration: number = this.ONE_DAY): string {
-    const encodedHeader = this.base64urlEncode(JSON.stringify(this.buildHeader('2024-03-10')));
-    const encodedPayload = this.base64urlEncode(JSON.stringify(this.buildPayload(iss, aud, nonce, expDuration)));
+  public generate(
+    iss: string,
+    aud: string,
+    nonce: string,
+    expDuration: number = this.ONE_DAY
+  ): string {
+    const strHeader = JSON.stringify(this.buildHeader("2024-03-10"));
+    const encodedHeader = this.base64urlEncode(strHeader);
+    const rawPayload = this.buildPayload(iss, aud, nonce, expDuration);
+    const strPayload = JSON.stringify(rawPayload);
+    const encodedPayload = this.base64urlEncode(strPayload);
     const signTarget = `${encodedHeader}.${encodedPayload}`;
     const signature = this.sign(signTarget);
     return `${signTarget}.${this.base64urlEncode(signature)}`;
   }
 
-  private sign(target: string) {
-    const privatePath = path.resolve('./keys/tiny_idp_private.pem');
-    const privateKey = fs.readFileSync(privatePath, 'utf8');
+  public sign(target: string) {
+    const privatePath = path.resolve("./keys/tiny_idp_private.pem");
+    const privateKey = fs.readFileSync(privatePath, "utf8");
 
-    const sign = crypto.createSign('RSA-SHA256');
+    const sign = crypto.createSign("RSA-SHA256");
     sign.update(target);
-    const signature = sign.sign(privateKey, 'base64');
-    return signature;
+    return sign.sign(privateKey, "base64");
   }
 
   private buildHeader(kid: string): JwtHeader {
     return {
-      alg: 'RS256',
-      typ: 'JWT',
-      kid: kid
+      alg: "RS256",
+      typ: "JWT",
+      kid: kid,
     };
   }
 
-  private buildPayload(iss: string, aud: string, nonce: string, expDuration: number = this.ONE_DAY): JwtPayload {
+  private buildPayload(
+    iss: string,
+    aud: string,
+    nonce: string,
+    expDuration: number = this.ONE_DAY
+  ): JwtPayload {
     const sub = Math.random().toString(16).slice(2);
     const iat = Math.floor(Date.now() / 1000);
     const exp = iat + expDuration;
@@ -56,6 +68,10 @@ export class JwtService {
   }
 
   private base64urlEncode(input: string) {
-    return Buffer.from(input).toString('base64').replace(/\+/g, '-').replace(/\//g, '_').replace(/=/g, '');
+    return Buffer.from(input)
+      .toString("base64")
+      .replace(/\+/g, "-")
+      .replace(/\//g, "_")
+      .replace(/=/g, "");
   }
 }

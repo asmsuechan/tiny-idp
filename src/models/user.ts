@@ -14,14 +14,21 @@ export class User {
   static findByEmail(db: User[], email: string) {
     const result = db.find((u) => u.email === email);
     if (result) {
-      return new User(result?.id, result?.email, result?.password, result?.clientId);
+      return new User(
+        result?.id,
+        result?.email,
+        result?.password,
+        result?.clientId
+      );
     } else {
-      throw Error('User Not Found');
+      throw Error("User Not Found");
     }
   }
 
   static login(db: User[], email: string, password: string) {
-    const user = db.find((u) => u.email === email && u.password === password);
+    const user = db.find((u) => {
+      return u.email === email && u.password === password;
+    });
     if (user) {
       return true;
     } else {

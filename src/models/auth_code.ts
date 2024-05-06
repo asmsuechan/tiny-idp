@@ -23,11 +23,24 @@ export class AuthCode {
     this.nonce = nonce;
   }
 
-  static build(userId: number, clientId: string, redirectUri: string, nonce: string | null = null) {
+  static build(
+    userId: number,
+    clientId: string,
+    redirectUri: string,
+    nonce: string | null = null
+  ) {
+    // NOTE: Math.random()は本番の使用を想定していないので注意
     const code = Math.random().toString(36).slice(-8);
     const oneMin = 1 * 60 * 1000;
     const expiresAt = new Date(Date.now() + oneMin);
-    const authCode = new AuthCode(code, userId, clientId, expiresAt, redirectUri, nonce);
+    const authCode = new AuthCode(
+      code,
+      userId,
+      clientId,
+      expiresAt,
+      redirectUri,
+      nonce
+    );
     return authCode;
   }
 
