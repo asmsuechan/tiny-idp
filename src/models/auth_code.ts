@@ -6,7 +6,13 @@ export class AuthCode {
   usedAt: Date | null = null;
   redirectUri: string;
 
-  constructor(code: string, userId: number, clientId: string, expiresAt: Date, redirectUri: string) {
+  constructor(
+    code: string,
+    userId: number,
+    clientId: string,
+    expiresAt: Date,
+    redirectUri: string
+  ) {
     this.code = code;
     this.userId = userId;
     this.clientId = clientId;
@@ -15,10 +21,17 @@ export class AuthCode {
   }
 
   static build(userId: number, clientId: string, redirectUri: string) {
+    // NOTE: Math.random()は本番の使用を想定していないので注意
     const code = Math.random().toString(36).slice(-8);
     const oneMin = 1 * 60 * 1000;
     const expiresAt = new Date(Date.now() + oneMin);
-    const authCode = new AuthCode(code, userId, clientId, expiresAt, redirectUri);
+    const authCode = new AuthCode(
+      code,
+      userId,
+      clientId,
+      expiresAt,
+      redirectUri
+    );
     return authCode;
   }
 

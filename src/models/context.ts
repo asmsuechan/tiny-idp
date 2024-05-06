@@ -1,5 +1,5 @@
-import { AuthCode } from './auth_code';
-import { User } from './user';
+import { User } from "./user";
+import { AuthCode } from "./auth_code";
 
 export type Context = {
   users: User[];
