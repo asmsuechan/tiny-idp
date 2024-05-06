@@ -25,7 +25,7 @@ export const login = (
       user.id,
       clientId as string,
       redirectUri as string,
-      (nonce as string) || null
+      nonce || null
     );
     authCode.save(db.authCodes);
     res.writeHead(302, {
