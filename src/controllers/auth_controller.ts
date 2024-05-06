@@ -56,10 +56,10 @@ export const getAuth = (db: Context, query: URLSearchParams, res: ServerResponse
     const state = query.get('state');
     const nonce = query.get('nonce');
     const queryParams: QueryParams = { scope, responseType, clientId, redirectUri, state, nonce };
-    const validated = validate(queryParams);
-    if (validated) {
-      const responseData: ErrorResponse = { error: validated.authCodeError };
-      if (validated.target === 'redirectUri') {
+    const validateError = validate(queryParams);
+    if (validateError) {
+      const responseData: ErrorResponse = { error: validateError.authCodeError };
+      if (validateError.target === 'redirectUri') {
         const response = new URLSearchParams(responseData).toString();
         res.writeHead(302, {
           'Content-Type': 'application/x-www-form-urlencoded',

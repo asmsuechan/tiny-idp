@@ -56,10 +56,10 @@ export const postToken = (db: Context, params: URLSearchParams, res: ServerRespo
     return ac.code === code && ac.clientId === clientId && ac.expiresAt > new Date();
   });
 
-  const validated = validate(requestParams, authCode, client);
-  if (validated) {
+  const validateError = validate(requestParams, authCode, client);
+  if (validateError) {
     res.writeHead(400, { 'Content-Type': 'application/json', 'Cache-Control': 'no-store', Pragma: 'no-cache' });
-    const response: ErrorResponse = { error: validated };
+    const response: ErrorResponse = { error: validateError };
     res.end(JSON.stringify(response));
     return;
   }
